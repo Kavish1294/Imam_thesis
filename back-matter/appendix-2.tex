@@ -1,0 +1,46 @@
+
+\chapter{Magnetic Resonance}
+
+\section{Introduction}
+
+\section{Magnetic Resonance of a Two State System}
+
+To understand the use of NMR in this work, a brief introduction is provided. In the semi-classical picture, consider a nucleus with a non-zero spin, $\vec{I}$, and a magnetic moment, $\vec{\mu}$, given as
+\begin{equation}
+    \vec{\mu} = \gamma \vec{I}
+\end{equation}
+where $\gamma$ is the gyromagnetic ratio given as
+\begin{equation}
+    \gamma = \frac{g_ne}{2m_p} = \frac{g_n \mu_n}{\hbar}
+\end{equation}
+where $g_n$ is the g-factor of the nucleus in question, e is the elementary charge, $m_p$ is the mass of the proton and $\mu_N$ is the nuclear magneton. When placed under a uniform and static magnetic field, $\vec{H_0}$, the nucleus experiences a magnetic torque, $\vec{\Gamma}$, described by the rotational equation of motion
+\begin{equation}\label{larmorNuc}
+    \vec{\Gamma} = \frac{d\vec{I}}{dt} = \gamma \left( \vec{\mu} \times \vec{H_0} \right)
+\end{equation}
+Eq. \ref{larmorNuc} indicates that the magnetic moment, $\vec{\mu}$, will precess around the magnetic field, $\vec{H_0}$, as the the larmor frequency
+\begin{equation}
+    \omega_0 = \gamma \vec{H_0}
+\end{equation}
+where the magnitude of the magnetic moment of the nucleus is unchanged.
+
+The essence of NMR is to manipulate the magnetic moment. To do this, consider that the magnetic field, $\vec{H_0}$, was applied along the z-axis of the coordinate system, and now a second weak magnetic field, $\vec{H_1}$, is also being applied rotating about the z-axis, with angular frequency, $\omega_1$, in the transverse x-y axis plane
+\begin{equation}
+    \vec{H_1} \left(t \right) = H_1 \left( cos(\omega_1 t)\hat{x}-sin(\omega_1 t)\hat{y}  \right)
+\end{equation}
+To proceed further, it is convenient to represent eq. \ref{larmorNuc} in the laboratory frame of reference. Using,
+\begin{equation}
+    \frac{d\vec{I}}{dt}_{rotational} = \frac{d\vec{I}}{dt}_{inertial} - \Omega \times \vec{I} 
+\end{equation}
+Eq. \ref{larmorNuc}, can be written as
+\begin{equation}
+\begin{split}
+    \frac{d\vec{I}}{dt}_{rotational} &  = \gamma \left( \vec{I} \times \left( \vec{H} +\frac{\omega}{\gamma}\right) \right) \\
+    & = \gamma \vec{I} \times \left( \left( \vec{H_0} +\frac{\omega}{\gamma}\right)\hat{z}' + \vec{H_1}\hat{x}' \right)
+\end{split}
+\end{equation}
+Thus, the effective magnetic field, $\vec{H}_{eff}$, experienced by the particle in this rotating frame is
+\begin{equation}
+    \vec{H}_{eff} = \left( \vec{H_0} +\frac{\omega}{\gamma}\right)\hat{z}' + \vec{H_1}\hat{x}' 
+\end{equation}
+
+\subsection{Quantized Spin 1/2}

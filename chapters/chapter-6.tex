@@ -1,0 +1,120 @@
+\chapter{Optimization of Spin Dressing Operating Parameters}
+
+\ifpdf
+    \graphicspath{{Chapter4/Figs/Raster/}{Chapter4/Figs/PDF/}{Chapter4/Figs/}}
+\else
+    \graphicspath{{Chapter4/Figs/Vector/}{Chapter1/Figs/}}
+\fi
+
+\section{Overview of nEDM@SNS Simulation Program}
+
+The objective of this study was to determine a set of operating parameters for the nEDM@SNS experiment's spin dressing measurement technique, which will optimize the sensitivity. This study was performed on synthetic data generated for a broad range of the operating parameters in question. The synthetic data was generated and analysed using the computational framework, \texttt{FULLSIM}, developed by Vince Cianciolo of the nEDM@SNS collaboration.   
+
+The motivation behind this study, was (i) to provide insights on the effect of variation of experimental operating parameters on the spin dressing technique's nEDM sensitivity and (ii) find an optimum set of parameters with the hope utilizing them during the spin dressing measurement mode of the final experiment.
+
+minimizing the variation in the simulated edm.
+
+\texttt{FULLSIM} is capable of generating full data sets, with multiple parameter settings, at the level of the large data runs expected from nEDM@SNS experiment. The data sets can include n-3He capture scintillation events, if choosing to work on the modulated spin dressing measurement mode, or sets of self-consistent SQUID waveforms and n-3He capture scintillation events, if choosing to work with the free precession measurement mode.
+
+The \texttt{FULLSIM} flow diagram is shown in . Firstly, a list of parameters is specified for each run/cell to be simulated. Secondly, this list of parameters is passed on the the first module within \texttt{FULLSIM}: \texttt{PARGEN}. The resulting output files from \texttt{PARGEN} serve as input to the second module within \texttt{FULLSIM}: \texttt{EVTGEN}, which produces simulated data for each measurement cell per a chosen number of runs. False nEDM signals can also be injected into the data to allow for blind analyses. The input nEDM signal (the “true nEDM” value, the common false value, and the analysis-specific value are written to encrypted files, secured from user exposure. 
+
+SQUID files are equivalent to the output of a single ADC (analog-to-digital convertor) at the chosen sample frequency. Scintillation files consist of the sorted event times of UCN-related events (UCN+3He capture, UCN $\beta$-decay and UCN wall loss) and non-UCN related background events\footnote{At least in \texttt{FULLSIM}, the source of these backgrounds is unspecified. \texttt{GEANT4} and \texttt{MCNP} simulations are being performed to characterize the various sources of backgrounds expected for this experiment.}. By default, the event files are equivalent to “real” (waveform) data expected from the experiment following a post-processing step, in which the different SiPM channels are combined to produce event start times and energies, with energy cuts applied to reduce backgrounds\footnote{Alternatively, non-UCN related background events and analysis cuts can be turned off and the output of this simulation can be given to \texttt{GEANT4} to generate simulated waveform files}. An important point to note about \texttt{FULLSIM} is that UCN spins are not tracked ab initio and analytical formulations are used to calculate effects of magnetic field gradients and temporal variations. In addition to the event data, \texttt{EVTGEN} also produces the following output:
+\begin{itemize}
+    \item The simulated electric field as a function of time (as determined by the measured number of photons in the UCN+3He capture peak).
+    \item The holding magnetic field direction relative to $\hat{x}$ along with the true direction.
+    \item The spin dressing state as a function of time (produced for spin dressing mode only).
+\end{itemize}
+
+Lastly, the event data produced in \texttt{EVTGEN} is directly fitted, based on the measurement method selected, to extract the neutron EDM value.
+
+\section{Physics Parameters and Scintillation Event Generation}
+
+\subsection{UCN Events}
+First, we determine the expected number of UCN created during the fill portion of the measurement cycle:
+\begin{align}\label{UCNProduction}
+\begin{split}
+    \langle N_{UCN} \rangle  & = \underbrace{ R_{UCN, Be} }_{\text{Production rate per unit flux per unit volume per unit time.} } \times  \underbrace{ \sqrt[3/2]{ \frac{ U_{F,wall}  - U_{F,^4He} }{ U_{F,Be} - U_{F,^4He} } } }_{\text{Fermi potential of the cell walls.}}   \\ 
+    & \times \underbrace{ \frac{d \phi}{d \lambda_{8.9\AA,FnPB}} \times P_{SNS} \times T_{guide} \times \frac{A_{FNPB}}{ l_x l_y} }_{\text{neutron flux incident on the cells}} \\ 
+    & \times \underbrace{ V_{cell} \times t_{fill} }_{\text{product of the cell volume and irradiation time}}
+\end{split}
+\end{align}
+The first line in \autoref{UCNProduction} adjusts the production rate per unit flux per unit volume per unit time to account for the Fermi potential of the cell walls. The second line is the neutron flux incident on the cells. The third line is the product of the cell volume and irradiation time.
+
+The actual number of background events, $N_{UCN}$, is then selected from a Gaussian random number with $\mu_{i} = \langle N_{UCN} \rangle$ and $ \sigma = \sqrt{N_{UCN}} $.
+
+For each UCN, a formation time and total energy is calculated and a polarization state is assigned:
+\begin{equation}
+    t_{form} = t_{fill} \times \mathcal{R}_{0,1}
+\end{equation}
+\begin{equation}
+    E_{tot} = \sqrt[2/3]{\mathcal{R}_{0,1}} \times \left( U_{F,wall} - U_{F, SF4} \right) - m_{n}gl_{y}\mathcal{R}_{0,1}
+\end{equation}
+\begin{equation}
+    \mathcal{P} = \mathcal{R}_{0,1} < \frac{1+P_{n,0}}{2}
+\end{equation}
+where $\mathcal{R}_{0,1}$  is a uniform random number generator with a range of 0 to 1 and the energy determination assumes the UCN initial kinetic energy is distributed according to $\frac{dN}{dE} \propto \sqrt{E} $.
+
+Next, we determine the occurrence time of the processes listed in Table 1. Details for these calculations are given below. The process that actually occurs is the one with the shortest time\footnote{This technique is analogous to the one used in GEANT4, as documented in http://geant4-userdoc.web.cern.ch/geant4-userdoc/UsersGuides/PhysicsReferenceManual/html/generalities/particletransport/occurence.html (see "Determination of the Interaction Point").  It is also discussed in S. Agostinelli et al., NIM A506, 250 (2003) https://doi.org/10.1016/S0168-9002(03)01368-8 (sections 5.2 - 5.4).}:
+
+\begin{table}[]
+\centering
+\caption{A List of Possible UCN Processes based on the known phenomenology of UCNs.}
+\label{tab:my-table}
+\begin{tabular}{@{}l@{}}
+\toprule
+Possible UCN related process \\ \midrule
+End of measurement cycle \\
+UCN Depolarization \\
+$\frac{\pi}{2}$ pulse \\
+UCN-$^{3}$He capture \\
+UCN $\beta$-decay \\
+UCN wall loss \\ \bottomrule
+\end{tabular}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Scintillation data consists of a time-sorted list of UCN-related events (n+3He capture, $\beta$-decay and wall loss)
+
+First, we calculate the number of UCN events generated during the UCN making via superthermal scattering portion of measurement.
+
+The probability of n-3He capture at time, t, is given by:
+\begin{equation}
+\begin{split}
+    \mathcal{P}_{capture}(t) & = 1- \frac{N(t)}{N(0)} \\
+    & = 1 - exp \left ( -  \int_{0}^{t} \frac{1- \epsilon_{n3,P_0} \times P_{3He,0} \times 1 - \frac{t_{3,depol}}{t} \times cos(\phi_{3n}(t)) }{t_{cap}} dt   \right )    
+\end{split}
+\end{equation}
+For spin dressing:
+\begin{align}
+\begin{split}
+    \phi_{3n,sd}(t) & = \phi_{30} - \phi_{n0} \\
+    & + \int_{0}^{t} \left( \frac{4 \pi}{\hbar} \left( d_{n} \times J_{0}(x_{nc})\Vec{E}(t) \cdot \Vec{x} + (\mu_3 - \mu_n) \Vec{B}(t) \right) + \Delta \omega_{3,fake} - \Delta \omega_{n,fake} \right) dt \\
+    & + \phi_{sd}(t) + |sin(\phi_{sd}(t))| \times \int_{0}^{t} N_{\phi_{D}}dt
+\end{split}
+\end{align}
+
+\subsection{Non-UCN Related Events}
+
+
+\section{nEDM Extraction via Spin Dressing}
+
+\subsection{Fitting to Scintillation Rate}
+
+\subsection{Asymmetry}
+
+\section{Optimization of Spin Dressing Operating Parameters}
+
+Optimization of operating parameters ($\tau_3$, $t_{run}$ or $t_{\pm}$/$t_{\uparrow \uparrow}$ , $t_{wait}$, dressing modulation sequence) for different experiment performance parameter values
+
